@@ -1,0 +1,50 @@
+﻿@model IEnumerable<TwitterService.TweetSentiment>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IsPositive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TweetContent)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TweetedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TweetedOn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TweetID)
+            </th>
+           
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsPositive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TweetContent)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TweetedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TweetedOn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TweetID)
+            </td>
+           
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TwitterService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
