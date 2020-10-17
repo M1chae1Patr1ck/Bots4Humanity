@@ -47,6 +47,8 @@ namespace TwitterService
                // var configuration = configurationBuilder.Build();
                 var hashTags = _configuration.GetValue<string>("HashTags").Split(",").ToList();
                 var users = _configuration.GetValue<string>("Users").Split(",").ToList();
+                var blockedWords = _configuration.GetValue<string>("BlockedWords").Split(",").ToList();
+                var blockedUsers = _configuration.GetValue<string>("BlockedUsers").Split(",").ToList();
 
                 var userCredentials = new TwitterCredentials(
                     _configuration.GetValue<string>("Twitter:ApiKey"),
@@ -62,7 +64,7 @@ namespace TwitterService
                 var userClient = new TwitterClient(userCredentials);
                 var stream = userClient.Streams.CreateFilteredStream();
                 stream.AddLanguageFilter(LanguageFilter.English);
-                stream.FilterLevel = StreamFilterLevel.None;
+                stream.FilterLevel = StreamFilterLevel.Low;
                 foreach (var hashTag in hashTags) stream.AddTrack(hashTag);
                 foreach (var user in users)
                 {
@@ -74,12 +76,22 @@ namespace TwitterService
                 {
 
                     ITweet tweet = eventReceived.Tweet;
+                    string textToAnalyze = tweet.FullText ?? tweet.Text;
+                    foreach(var blockedWord in blockedWords)
+                    {
+                        if (textToAnalyze.ToLower().Contains(blockedWord.ToLower())) return;
+                    }
+                    if (blockedUsers.Contains(tweet.CreatedBy.ScreenName)) return;
+                    foreach (var blockedWord in blockedWords)
+                    {
+                        if (textToAnalyze.ToLower().Contains(blockedWord.ToLower())) return;
+                    }
                     if (eventReceived.Tweet.IsRetweet) return;
                     if (eventReceived.Tweet.CreatedBy.CreatedAt > DateTime.Now.AddMonths(-1)) return;
                     if (eventReceived.Tweet.CreatedBy.FollowersCount < 100) return;
                     if (eventReceived.MatchingFollowers.Length > 0 && eventReceived.MatchingFollowers.Contains(tweet.CreatedBy.Id) == false) return;
 
-                    string textToAnalyze = tweet.FullText ?? tweet.Text;
+                    
                     //_logger.LogInformation("Matching tweet: {time}, {text}", DateTimeOffset.Now, textToAnalyze.Replace(Environment.NewLine,""));
                     var connStr = _configuration.GetConnectionString("DefaultConnection");
                     var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
